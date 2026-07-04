@@ -1,0 +1,6 @@
+{
+  "name": "statusline",
+  "version": "1.0.0",
+  "description": "Native rate-limit / burn / context status line for Claude Code (Pro/Max). Ships the script on PATH (bin/) and a /regen-statusline command; the statusLine block must be added to settings.json manually (plugins cannot set statusLine).",
+  "author": { "name": "Manikanta Radhakrishna" }
+}

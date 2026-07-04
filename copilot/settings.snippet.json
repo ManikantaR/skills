@@ -1,0 +1,8 @@
+{
+  "//": "Merge into ~/.copilot/settings.json. statusLine.command is EXPERIMENTAL in Copilot CLI (since 2026-05) and requires experimental features enabled. Same schema as Claude Code.",
+  "statusLine": {
+    "type": "command",
+    "command": "~/repo/skills/copilot/statusline.sh",
+    "padding": 1
+  }
+}

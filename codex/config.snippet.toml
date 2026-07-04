@@ -1,0 +1,22 @@
+# Codex CLI status line — BUILT-IN, no script.
+# Codex renders the footer from an ordered list of native items; there is no
+# stdin-JSON custom-command hook like Claude/Copilot. Configure it either:
+#   (a) interactively:  run `/statusline` inside Codex (multi-select picker + live preview), or
+#   (b) declaratively:  append the block below to ~/.codex/config.toml
+#
+# Codex natively exposes 5-hour + weekly rate limits, so you get the same
+# visibility as the Claude script without any custom code.
+#
+# Available item identifiers (confirm exact spellings via `/statusline` or the
+# config reference: https://developers.openai.com/codex/config-reference):
+#   model      - current model + reasoning level
+#   context    - remaining/used context-window %
+#   rate_limits- 5-hour + weekly usage limits
+#   git        - current branch
+#   tokens     - used tokens (input/output)
+#   session    - session id
+#   paths      - cwd / project root
+
+[tui]
+status_line = ["model", "context", "rate_limits", "git", "tokens"]
+status_line_use_colors = true

@@ -1,0 +1,9 @@
+{
+  "//": "Merge this block into ~/.claude/settings.json. Plugins CANNOT set statusLine, so this step is always manual (or via install.sh). Use the absolute path if not installed as a PATH-enabled plugin.",
+  "statusLine": {
+    "type": "command",
+    "command": "~/repo/skills/claude/bin/statusline.sh",
+    "padding": 0,
+    "refreshInterval": 10
+  }
+}

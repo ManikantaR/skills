@@ -1,0 +1,14 @@
+{
+  "name": "mani-skills",
+  "owner": { "name": "Manikanta Radhakrishna" },
+  "metadata": {
+    "description": "Personal cross-harness skills/tooling. First entry: the statusline."
+  },
+  "plugins": [
+    {
+      "name": "statusline",
+      "source": "./claude",
+      "description": "Two-line status line for Claude Code: native 5h/weekly rate limits, context %, cost, derived time-until-cap. Muted 256-color palette, on/off toggle."
+    }
+  ]
+}
