@@ -3,8 +3,14 @@
 Personal, cross-harness agent tooling. Single source of truth so a customization
 is authored once and carried to any machine (personal → work) and any harness.
 
-First (and currently only) artifact: **the status line** — 5-hour / weekly rate
-limits, context %, cost, and a derived *time-until-cap*.
+Artifacts:
+- **statusline** (`claude/`, `codex/`, `copilot/`) — a script: 5-hour / weekly rate limits,
+  context %, cost, and a derived *time-until-cap*.
+- **codebase-walkthrough** (`codebase-walkthrough/`) — a model-driven skill that generates/updates
+  an interactive, offline `docs/walkthrough.html` teaching any repo (C4 architecture, guided
+  code-walk, per-entrypoint call-flow lifecycles, animated runtime pipeline, roadmap, dev guide).
+  Python / React-TS / C# / SQL. Global from any repo once linked — see
+  `codebase-walkthrough/README.md`.
 
 ## Why this is a repo, not a loose script
 

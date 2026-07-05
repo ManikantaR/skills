@@ -1,0 +1,6 @@
+{
+  "name": "codebase-walkthrough",
+  "version": "1.0.0",
+  "description": "Generate/update an interactive, self-contained offline HTML walkthrough that teaches any codebase — architecture (C4), guided code-walk, per-entrypoint call-flow lifecycles, animated runtime pipeline, roadmap/task status, and a dev build/install/run guide. Ships the codebase-walkthrough skill + a /walkthrough command. Python / React-TS / C# / SQL.",
+  "author": { "name": "Manikanta Radhakrishna" }
+}

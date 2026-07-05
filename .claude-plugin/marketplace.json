@@ -2,13 +2,18 @@
   "name": "mani-skills",
   "owner": { "name": "Manikanta Radhakrishna" },
   "metadata": {
-    "description": "Personal cross-harness skills/tooling. First entry: the statusline."
+    "description": "Personal cross-harness skills/tooling: the statusline and the codebase-walkthrough generator."
   },
   "plugins": [
     {
       "name": "statusline",
       "source": "./claude",
       "description": "Two-line status line for Claude Code: native 5h/weekly rate limits, context %, cost, derived time-until-cap. Muted 256-color palette, on/off toggle."
+    },
+    {
+      "name": "codebase-walkthrough",
+      "source": "./codebase-walkthrough",
+      "description": "Generate/update an interactive offline HTML walkthrough of any codebase — C4 architecture, guided code-walk, per-entrypoint call-flow lifecycles, animated runtime pipeline, roadmap, and dev guide. Python / React-TS / C# / SQL. Ships the codebase-walkthrough skill + /walkthrough command."
     }
   ]
 }
