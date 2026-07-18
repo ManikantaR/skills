@@ -246,7 +246,7 @@ _CODE_EXT = {".py", ".js", ".ts", ".tsx", ".jsx", ".go", ".rs", ".rb", ".java",
 
 
 def tech_debt(cwd, big_lines=600):
-    markers, big_files, scanned = 0, [], 0
+    markers, big_files, scanned, total_lines = 0, [], 0, 0
     for root, dirs, fnames in os.walk(cwd):
         dirs[:] = [d for d in dirs if d not in _SKIP_DIRS]
         for f in fnames:
@@ -261,12 +261,13 @@ def tech_debt(cwd, big_lines=600):
                 continue
             scanned += 1
             n = len(lines)
+            total_lines += n
             hits = sum(1 for ln in lines if _DEBT_RE.search(ln))
             markers += hits
             if n >= big_lines:
                 big_files.append({"path": os.path.relpath(path, cwd), "lines": n})
     big_files.sort(key=lambda x: -x["lines"])
-    return {"markers": markers, "files_scanned": scanned,
+    return {"markers": markers, "files_scanned": scanned, "total_lines": total_lines,
             "big_files": big_files[:8], "big_file_count": len(big_files)}
 
 
