@@ -45,12 +45,23 @@ def assemble(template, data, out, title=None, favicon="🗂️"):
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)
 
-    # docmap sidecar for UPDATE mode
+    # docmap sidecar for UPDATE mode + hub index cards
+    repo = data.get("repo") or {}
+    summary = data.get("summary") or {}
     docmap = {
         "generated_at": data.get("generated_at"),
-        "repo": data.get("repo"),
+        "repo": repo,
         "data_sha": hashlib.sha256(data_json.encode()).hexdigest()[:16],
         "sections": sorted(data.keys()),
+        "card": {
+            "title": data.get("display_name") or repo.get("name"),
+            "tagline": data.get("tagline", ""),
+            "url": data.get("repo_url") or repo.get("url"),
+            "visibility": repo.get("visibility"),
+            "readiness_score": summary.get("readiness_score"),
+            "verdict": data.get("verdict") or {},
+            "blockers": summary.get("blockers", []),
+        },
     }
     side = os.path.join(os.path.dirname(os.path.abspath(out)), ".pulse.docmap.json")
     with open(side, "w", encoding="utf-8") as f:
