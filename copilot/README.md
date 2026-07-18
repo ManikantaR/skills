@@ -22,3 +22,16 @@ Toggle: `statusline.sh on | off | toggle` (flag `~/.copilot/.statusline-disabled
 
 Sources: tgrall.github.io/blog/2026/05/02/copilot-cli-customize-statusline ·
 github.com/github/copilot-cli/issues/2342
+
+## Skills (portable prompts)
+
+Copilot reads custom prompt/instruction files. Point it at the portable prompts, which tell it to
+open and follow the shared `SKILL.md`:
+
+```
+ln -sfn ~/repo/skills/codebase-walkthrough/prompts/walkthrough.md ~/.copilot/prompts/walkthrough.md
+ln -sfn ~/repo/skills/repo-pulse/prompts/pulse.md               ~/.copilot/prompts/pulse.md
+```
+
+(verify the exact prompts dir for your Copilot version). Then use `/walkthrough` or `/pulse`, or
+paste the prompt into a session. `../install.sh` prints these steps too.

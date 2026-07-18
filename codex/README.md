@@ -18,3 +18,16 @@ reference — they are inferred here.
 
 Sources: developers.openai.com/codex/config-reference ·
 github.com/openai/codex/pull/10546 (the `/statusline` command)
+
+## Skills (portable prompts)
+
+Codex has no skills system, but it reads custom prompt files. The model-driven skills in this repo
+ship a portable prompt that tells Codex to open and follow the shared `SKILL.md`:
+
+```
+mkdir -p ~/.codex/prompts
+ln -sfn ~/repo/skills/codebase-walkthrough/prompts/walkthrough.md ~/.codex/prompts/walkthrough.md
+ln -sfn ~/repo/skills/repo-pulse/prompts/pulse.md               ~/.codex/prompts/pulse.md
+```
+
+Then use `/walkthrough` or `/pulse` in Codex. (`../install.sh` prints these steps too.)
