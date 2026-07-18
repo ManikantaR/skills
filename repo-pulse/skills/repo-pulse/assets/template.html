@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+{{CHASSIS_CSS}}
+
+/* ---- page composition (repo-pulse) ---- */
+.wrap{max-width:1120px; margin:0 auto; padding:clamp(20px,4vw,52px) clamp(16px,4vw,40px) 64px;
+  background:var(--paper); color:var(--ink); font-family:var(--sans); line-height:1.5; font-size:15px; -webkit-font-smoothing:antialiased}
+header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:20px 28px; margin-bottom:30px}
+.brand h1{font-size:clamp(28px,4.4vw,44px); font-weight:680; letter-spacing:-.02em}
+.brand h1 b{color:var(--accent); font-weight:680}
+.brand p{margin:.55em 0 0; max-width:52ch; color:var(--ink-2); font-size:15px}
+.live{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+
+.pipe{border:1px solid var(--line); background:var(--surface); border-radius:var(--r); padding:20px clamp(14px,2.4vw,24px); box-shadow:var(--shadow); margin-bottom:14px; position:relative; overflow:hidden}
+.pipe .cap{display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:16px}
+.pipe .cap span{color:var(--ink-3); font-family:var(--mono); font-size:11px}
+.flow{display:flex; align-items:stretch; overflow-x:auto; padding-bottom:4px}
+.stage{flex:1 1 0; min-width:118px; display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; padding:0 6px}
+.stage .glyph{width:100%; height:52px; border-radius:var(--r-sm); border:1px solid var(--line); background:var(--raised); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ink); position:relative; z-index:1}
+.stage.key .glyph{border-color:color-mix(in srgb,var(--accent) 50%,var(--line)); background:var(--accent-soft); color:var(--accent-2)}
+.stage.human .glyph{border-color:color-mix(in srgb,var(--partial) 45%,var(--line)); background:var(--partial-bg); color:var(--partial)}
+.stage .lbl{margin-top:9px; font-size:11px; color:var(--ink-2); font-family:var(--mono)}
+.stage:not(:last-child) .glyph::after{content:""; position:absolute; right:-8px; top:50%; width:12px; height:2px; background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 20%,transparent)); z-index:0}
+.pipe .sweep{position:absolute; left:0; top:0; height:100%; width:34%; background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent) 12%,transparent),transparent); animation:sweep 4.4s linear infinite; pointer-events:none}
+@keyframes sweep{0%{transform:translateX(-40%)}100%{transform:translateX(330%)}}
+.pipe-warn{margin-top:15px; padding-top:14px; border-top:1px solid var(--line-2); display:flex; align-items:center; gap:9px; font-family:var(--mono); font-size:11.5px; color:var(--ink-2); line-height:1.45}
+.pipe-warn b{color:var(--partial)}
+
+.verdict{display:flex; gap:16px; align-items:flex-start; border-radius:var(--r); padding:15px 18px; margin-bottom:13px}
+.verdict .vk{font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase; font-weight:700; padding-top:3px; white-space:nowrap}
+.verdict p{margin:0; font-size:14px; color:var(--ink); line-height:1.5; max-width:80ch}
+.verdict.tone-blocker{border:1px solid color-mix(in srgb,var(--attn) 30%,var(--line)); background:var(--attn-bg)} .verdict.tone-blocker .vk{color:var(--attn)}
+.verdict.tone-gap{border:1px solid color-mix(in srgb,var(--partial) 30%,var(--line)); background:var(--partial-bg)} .verdict.tone-gap .vk{color:var(--partial)}
+.verdict.tone-solid{border:1px solid color-mix(in srgb,var(--done) 30%,var(--line)); background:var(--done-bg)} .verdict.tone-solid .vk{color:var(--done)}
+
+.ready{display:grid; grid-template-columns:repeat(3,1fr); gap:11px}
+.rcard{border:1px solid var(--line); border-left:3px solid var(--line); background:var(--surface); border-radius:var(--r-sm); padding:14px 15px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:9px}
+.rcard .rh{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.rcard .rdim{font-size:13.5px; font-weight:600; line-height:1.2}
+.rcard .rf{font-size:12.5px; color:var(--ink-2); line-height:1.45; flex:1}
+.rcard .rr{font-family:var(--mono); font-size:11px; color:var(--ink-3)}
+.rcard .rr a{color:var(--accent-2); text-decoration:none}
+.rpill{font-family:var(--mono); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; padding:3px 8px; border-radius:100px; font-weight:700; white-space:nowrap}
+.r-solid{background:var(--done-bg); color:var(--done)} .rcard.r-solid{border-left-color:var(--done)}
+.r-measuring{background:var(--accent-soft); color:var(--accent-2)} .rcard.r-measuring{border-left-color:var(--accent)}
+.r-gap{background:var(--partial-bg); color:var(--partial)} .rcard.r-gap{border-left-color:var(--partial)}
+.r-blocker{background:var(--attn-bg); color:var(--attn)} .rcard.r-blocker{border-left-color:var(--attn)}
+
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:18px 0 34px}
+.tile{border:1px solid var(--line); background:var(--surface); border-radius:var(--r); padding:16px 16px 15px; box-shadow:var(--shadow)}
+.tile .k{font-family:var(--mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3)}
+.tile .v{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:30px; font-weight:600; margin-top:7px; letter-spacing:-.02em; line-height:1}
+.tile .v small{font-size:15px; color:var(--ink-3); font-weight:500}
+.tile .sub{font-size:12px; color:var(--ink-2); margin-top:6px}
+.bar{height:5px; border-radius:100px; background:var(--line-2); margin-top:11px; overflow:hidden}
+.bar > i{display:block; height:100%; border-radius:100px; background:var(--done)}
+
+.rail{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:9px}
+.ph{border:1px solid var(--line); background:var(--surface); border-radius:var(--r-sm); padding:12px 11px 13px; cursor:pointer; transition:border-color .15s, transform .12s; text-align:left; color:inherit; width:100%; font:inherit; display:block}
+.ph:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line)); transform:translateY(-2px)}
+.ph .pn{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
+.ph .pt{font-size:12.5px; font-weight:600; margin:5px 0 10px; line-height:1.25; min-height:2.4em}
+.ph .pbar{height:5px; border-radius:100px; background:var(--line-2); overflow:hidden}
+.ph .pbar > i{display:block; height:100%; border-radius:100px}
+.ph .pf{display:flex; justify-content:space-between; align-items:center; margin-top:9px}
+.ph .cnt{font-family:var(--mono); font-size:11px; color:var(--ink-2); font-variant-numeric:tabular-nums}
+
+.controls{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 18px; align-items:center}
+.board{display:grid; grid-template-columns:repeat(2,1fr); gap:11px}
+.card{display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; border:1px solid var(--line); background:var(--surface); border-radius:var(--r-sm); padding:13px 15px; text-decoration:none; transition:border-color .14s, transform .12s, box-shadow .14s}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--line)); transform:translateY(-1px); box-shadow:var(--shadow)}
+.card.attn{border-left:3px solid var(--attn)}
+.id{font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ink-3); font-variant-numeric:tabular-nums; min-width:34px}
+.body .t{font-size:13.5px; font-weight:550; line-height:1.3; color:var(--ink)}
+.body .m{display:flex; flex-wrap:wrap; gap:6px 10px; margin-top:5px; align-items:center}
+.body .m span{font-family:var(--mono); font-size:10.5px; color:var(--ink-3)}
+.body .m .note{color:var(--partial)}
+.tag{font-family:var(--mono); font-size:9.5px; letter-spacing:.05em; text-transform:uppercase; padding:2px 6px; border-radius:5px; font-weight:600}
+.rt{font-family:var(--mono); font-size:11px; color:var(--ink-3); text-align:right; white-space:nowrap}
+.rt b{color:var(--accent-2)}
+
+.track{border:1px solid color-mix(in srgb,var(--v2) 30%,var(--line)); background:var(--v2-bg); border-radius:var(--r); padding:18px clamp(14px,2.2vw,22px)}
+.track .board .card{background:var(--surface)} .track .id{color:var(--v2)}
+
+.attn-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:11px}
+.acard{border:1px solid color-mix(in srgb,var(--attn) 32%,var(--line)); background:var(--attn-bg); border-radius:var(--r-sm); padding:14px 15px; text-decoration:none; display:block; color:inherit; transition:transform .12s}
+.acard:hover{transform:translateY(-2px)}
+.acard .ah{display:flex; align-items:center; gap:8px}
+.acard .ah .id{color:var(--attn)}
+.acard .ah .lab{font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--attn); font-weight:600}
+.acard .at{font-size:13px; font-weight:550; margin-top:8px; line-height:1.35}
+
+footer{margin-top:44px; border-top:1px solid var(--line); padding-top:20px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:16px 28px}
+footer .tech{display:flex; flex-wrap:wrap; gap:7px; max-width:70ch} footer .tech .chip{font-size:11px}
+footer .note{font-size:12px; color:var(--ink-3); max-width:36ch; text-align:right; margin-left:auto}
+.legend{display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; font-family:var(--mono); font-size:11px; color:var(--ink-2)}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.hidden{display:none !important}
+
+@media (max-width:820px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .board{grid-template-columns:1fr}
+  .ready{grid-template-columns:1fr}
+  .verdict{flex-direction:column; gap:8px}
+  .attn-grid{grid-template-columns:1fr}
+  .ph .pt{min-height:0}
+  footer .note{text-align:left; margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="eyebrow" id="eyebrow"></div>
+      <h1 id="title"></h1>
+      <p id="tagline"></p>
+    </div>
+    <div class="live" id="live"></div>
+  </header>
+
+  <section class="pipe hidden" id="pipeSec" aria-label="Pipeline">
+    <div class="sweep" aria-hidden="true"></div>
+    <div class="cap"><div class="eyebrow" id="pipeCap"></div><span id="pipeSub"></span></div>
+    <div class="flow" id="flow"></div>
+    <div class="pipe-warn hidden" id="pipeWarn"></div>
+  </section>
+
+  <div class="verdict hidden" id="verdict"><span class="vk">Verdict</span><p id="verdictText"></p></div>
+  <div class="sec hidden" id="readySec"><h2>Readiness</h2><span class="meta" id="readyMeta"></span></div>
+  <div class="ready" id="ready"></div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="sec hidden" id="railSec"><h2 id="railTitle">Progress</h2><span class="meta" id="railMeta"></span></div>
+  <div class="rail" id="rail"></div>
+
+  <div class="sec" id="issuesSec"><h2>Issues</h2><span class="meta" id="issuesMeta"></span></div>
+  <div class="controls" id="controls"></div>
+  <div class="board" id="board"></div>
+
+  <div id="tracks"></div>
+
+  <div class="sec hidden" id="attnSec"><h2>Needs attention</h2><span class="meta" id="attnMeta"></span></div>
+  <div class="attn-grid" id="attn"></div>
+
+  <footer>
+    <div>
+      <div class="eyebrow" style="margin-bottom:9px">Stack</div>
+      <div class="tech" id="stack"></div>
+      <div class="legend"><span><i class="st done"></i>solid</span><span><i class="st prog"></i>in&nbsp;flight</span><span><i class="st open"></i>open</span><span><i class="st attn2"></i>attention</span></div>
+    </div>
+    <div class="note" id="foot"></div>
+  </footer>
+</div>
+
+<script>
+{{RENDER_JS}}
+const DATA = {{DATA}};
+(function(){
+  const esc=PC.esc, el=PC.el, $=PC.$;
+  const D=DATA, repo=D.repo||{}, U=D.repo_url||(repo.url||"");
+  const ilink=(n)=>U?`${U}/issues/${n}`:"#";
+
+  // header
+  $("#eyebrow").textContent = D.eyebrow || ("Status · "+(D.generated_at||"").slice(0,10));
+  const nm = repo.name||"Repository";
+  $("#title").innerHTML = esc(nm).replace(/(pulse|Pulse)$/,'<b>$1</b>') === esc(nm) ? esc(nm) : esc(nm.slice(0,-5))+'<b>'+esc(nm.slice(-5))+'</b>';
+  $("#tagline").textContent = D.tagline || repo.description || "";
+  $("#live").innerHTML=(D.live||[]).map((c,i)=>`<span class="chip ${c.kind==='good'?'good':c.kind==='warn'?'warn':''}"><span class="dot${i===0&&c.kind==='good'?' pulse':''}"></span>${esc(c.label)}</span>`).join("");
+
+  // pipeline (optional)
+  if(D.pipeline && (D.pipeline.stages||[]).length){
+    $("#pipeSec").classList.remove("hidden");
+    $("#pipeCap").textContent=D.pipeline.caption||"Pipeline";
+    $("#pipeSub").textContent=D.pipeline.sub||"";
+    $("#flow").innerHTML=D.pipeline.stages.map(s=>`<div class="stage ${s.kind==='key'?'key':''} ${s.kind==='human'?'human':''}"><div class="glyph">${esc(s.b)}</div><div class="lbl">${esc(s.l||"")}</div></div>`).join("");
+    if(D.pipeline.note){ const w=$("#pipeWarn"); w.classList.remove("hidden"); w.innerHTML=`<span class="st prog"></span>${D.pipeline.note}`; }
+  }
+
+  // verdict + readiness (optional)
+  const R=D.readiness||[];
+  if(D.verdict){ const v=$("#verdict"); v.classList.remove("hidden"); v.classList.add("tone-"+(D.verdict.tone||"gap")); $("#verdictText").innerHTML=D.verdict.text; }
+  if(R.length){
+    $("#readySec").classList.remove("hidden");
+    $("#readyMeta").textContent=D.readiness_meta||"";
+    $("#ready").innerHTML=R.map(r=>`<div class="rcard r-${r.status}"><div class="rh"><div class="rdim">${esc(r.dim)}</div><span class="rpill r-${r.status}">${esc(r.label||r.status)}</span></div><div class="rf">${r.finding}</div><div class="rr">${r.ref||""}</div></div>`).join("");
+  }
+
+  // stat tiles
+  const S=D.summary||{}, tiles=D.tiles||[
+    {k:"readiness",v:(S.readiness_score!=null?Math.round(S.readiness_score*100)+"%":"—"),sub:(S.blockers&&S.blockers.length?S.blockers.length+" blocker(s)":"no hard blockers"),bar:(S.readiness_score||0)*100},
+    {k:"open issues",v:S.issues_open,sub:`of ${S.issues_total} total`},
+    {k:"PRs merged",v:S.prs_merged,sub:(S.prs_open||0)+" open"},
+    {k:"branch",v:(D.git&&D.git.ahead)||0,sub:"ahead of "+((D.git&&D.git.default_branch)||"main")},
+  ];
+  $("#stats").innerHTML=tiles.map(t=>`<div class="tile"><div class="k">${esc(t.k)}</div><div class="v">${t.v==null?"—":t.v}${t.small?`<small> ${t.small}</small>`:""}</div>${t.bar!=null?`<div class="bar"><i style="width:${Math.round(t.bar)}%"></i></div>`:""}${t.sub?`<div class="sub">${esc(t.sub)}</div>`:""}</div>`).join("");
+
+  // phases (optional) + filter integration
+  let active="all";
+  const PH=D.phases||[];
+  if(PH.length){
+    $("#railSec").classList.remove("hidden");
+    $("#railTitle").textContent=D.rail_title||"Progress";
+    $("#railMeta").textContent=D.rail_meta||"";
+    const rail=$("#rail");
+    PH.forEach(p=>{
+      const col=p.status==="complete"?"var(--done)":p.status==="none"?"var(--open)":"var(--partial)";
+      const pill=p.status==="complete"?["s-done","complete"]:p.status==="none"?["s-open","planned"]:["s-part","partial"];
+      const b=el(`<button class="ph" data-g="${esc(p.id)}"><div class="pn">${esc(p.tag||p.id)}</div><div class="pt">${esc(p.label)}</div><div class="pbar"><i style="width:${PC.pct(p.done,p.total)}%;background:${col}"></i></div><div class="pf"><span class="cnt">${p.done}/${p.total}</span><span class="stat-pill ${pill[0]}">${pill[1]}</span></div></button>`);
+      b.addEventListener("click",()=>{setFilter("g:"+p.id); $("#controls").scrollIntoView({behavior:"smooth",block:"start"});});
+      rail.appendChild(b);
+    });
+  }
+
+  // issue board + filters
+  const ISS=D.issues||[], GR=D.groups||{};
+  $("#issuesMeta").textContent=D.issues_meta||"click a card to open on GitHub";
+  const FILTERS=[
+    {id:"all",label:"Everything",fn:i=>!i.track||i.track==="main"},
+    {id:"done",label:"Shipped",fn:i=>(!i.track||i.track==="main")&&i.state==="done"},
+    {id:"flight",label:"In flight",fn:i=>(!i.track||i.track==="main")&&i.state!=="done"},
+    {id:"attn",label:"Needs attention",fn:i=>i.attn},
+  ];
+  const controls=$("#controls");
+  FILTERS.forEach(f=>{const n=ISS.filter(f.fn).length; const b=el(`<button class="fbtn" data-f="${f.id}" aria-pressed="${f.id==='all'}">${f.label}<span class="c num">${n}</span></button>`); b.addEventListener("click",()=>setFilter(f.id)); controls.appendChild(b);});
+  function tagFor(i){const g=GR[i.group]; return g?g.tag||g.label:(i.group||"");}
+  function stCls(i){return i.attn?"attn2":i.state==="done"?"done":i.state==="prog"?"prog":"open";}
+  function cardHTML(i){
+    const right=i.pr?`PR <b>#${i.pr}</b>`:i.state==="done"?"shipped":i.state==="prog"?"in&nbsp;progress":"open";
+    return `<a class="card ${i.attn?'attn':''}" href="${ilink(i.n)}" target="_blank" rel="noopener"><div class="id num">#${i.n}</div><div class="body"><div class="t">${esc(i.t)}</div><div class="m"><span class="tag" style="color:var(--accent-2);background:var(--accent-soft)">${esc(tagFor(i))}</span>${i.owner?`<span>${esc(i.owner)}</span>`:""}${i.note?`<span class="note">${esc(i.note)}</span>`:""}</div></div><div style="display:flex;align-items:center;gap:10px"><span class="rt">${right}</span><i class="st ${stCls(i)}"></i></div></a>`;
+  }
+  function setFilter(id){
+    active=id;
+    controls.querySelectorAll(".fbtn").forEach(b=>b.setAttribute("aria-pressed", !id.startsWith("g:")&&b.dataset.f===id));
+    let list = id.startsWith("g:") ? ISS.filter(i=>i.group===id.slice(2)) : ISS.filter(FILTERS.find(f=>f.id===id).fn);
+    list.sort((a,b)=>a.n-b.n);
+    $("#board").innerHTML=list.map(cardHTML).join("")||`<div style="color:var(--ink-3);font-family:var(--mono);font-size:13px;padding:8px">Nothing here.</div>`;
+  }
+  setFilter("all");
+
+  // extra tracks (e.g. v2)
+  $("#tracks").innerHTML=(D.tracks||[]).map(t=>`<div class="sec"><h2>${esc(t.label)}</h2><span class="meta">${esc(t.meta||"")}</span></div><div class="track"><div class="board">${ISS.filter(i=>i.track===t.id).sort((a,b)=>a.n-b.n).map(cardHTML).join("")}</div></div>`).join("");
+
+  // attention (optional)
+  const A=D.attention||[];
+  if(A.length){
+    $("#attnSec").classList.remove("hidden");
+    $("#attnMeta").textContent=D.attn_meta||"";
+    $("#attn").innerHTML=A.map(a=>`<${a.href?"a":"div"} class="acard" ${a.href?`href="${esc(a.href)}" target="_blank" rel="noopener"`:'style="cursor:default"'}><div class="ah"><span class="id num">${esc(a.id)}</span><span class="lab">${esc(a.label||"")}</span></div><div class="at">${esc(a.title)}</div></${a.href?"a":"div"}>`).join("");
+  }
+
+  // footer
+  $("#stack").innerHTML=(D.stack||[]).map(s=>`<span class="chip">${esc(s)}</span>`).join("");
+  $("#foot").innerHTML=D.footer||`Generated ${esc((D.generated_at||"").slice(0,10))} by <b>repo-pulse</b>. Re-run to update in place.`;
+
+  PC.themeToggle();
+})();
+</script>
+</body>
+</html>

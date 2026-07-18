@@ -1,0 +1,87 @@
+/* chassis.css — shared design system for repo-pulse + codebase-walkthrough.
+   Theme tokens (light/dark, viewer-toggleable) + atomic components. Inlined
+   into each single-file offline artifact by assemble.py. Page-composition CSS
+   lives in each template; this file is only tokens + reusable atoms. */
+
+:root{
+  --paper:#f3f6f4; --surface:#ffffff; --raised:#fafcfa;
+  --ink:#15211f; --ink-2:#41504c; --ink-3:#6f7e79;
+  --line:#e1e6e1; --line-2:#edf1ed;
+  --accent:#0c877d; --accent-2:#0a6a62; --accent-soft:#dff0ed;
+  --done:#2b8a56; --partial:#b07d17; --open:#54708d; --attn:#bd4136; --v2:#5850bd;
+  --done-bg:#e6f2ec; --partial-bg:#f6efdb; --open-bg:#e9eef4; --attn-bg:#f7e5e3; --v2-bg:#ecebf7;
+  --shadow:0 1px 2px rgba(20,32,30,.05), 0 10px 26px rgba(20,32,30,.055);
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  --r:14px; --r-sm:9px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#0c1211; --surface:#121a18; --raised:#16211f;
+    --ink:#e9efec; --ink-2:#a6bab3; --ink-3:#7d918b;
+    --line:#22302d; --line-2:#1a2523;
+    --accent:#3ed0c2; --accent-2:#5bdccf; --accent-soft:#10312d;
+    --done:#53c488; --partial:#e1a63e; --open:#8ca7c6; --attn:#ef7064; --v2:#928cef;
+    --done-bg:#122a20; --partial-bg:#2a2413; --open-bg:#151f2b; --attn-bg:#2c1613; --v2-bg:#1b192d;
+    --shadow:0 1px 2px rgba(0,0,0,.32), 0 14px 34px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="light"]{
+  --paper:#f3f6f4; --surface:#ffffff; --raised:#fafcfa;
+  --ink:#15211f; --ink-2:#41504c; --ink-3:#6f7e79;
+  --line:#e1e6e1; --line-2:#edf1ed;
+  --accent:#0c877d; --accent-2:#0a6a62; --accent-soft:#dff0ed;
+  --done:#2b8a56; --partial:#b07d17; --open:#54708d; --attn:#bd4136; --v2:#5850bd;
+  --done-bg:#e6f2ec; --partial-bg:#f6efdb; --open-bg:#e9eef4; --attn-bg:#f7e5e3; --v2-bg:#ecebf7;
+  --shadow:0 1px 2px rgba(20,32,30,.05), 0 10px 26px rgba(20,32,30,.055);
+}
+:root[data-theme="dark"]{
+  --paper:#0c1211; --surface:#121a18; --raised:#16211f;
+  --ink:#e9efec; --ink-2:#a6bab3; --ink-3:#7d918b;
+  --line:#22302d; --line-2:#1a2523;
+  --accent:#3ed0c2; --accent-2:#5bdccf; --accent-soft:#10312d;
+  --done:#53c488; --partial:#e1a63e; --open:#8ca7c6; --attn:#ef7064; --v2:#928cef;
+  --done-bg:#122a20; --partial-bg:#2a2413; --open-bg:#151f2b; --attn-bg:#2c1613; --v2-bg:#1b192d;
+  --shadow:0 1px 2px rgba(0,0,0,.32), 0 14px 34px rgba(0,0,0,.4);
+}
+
+*{box-sizing:border-box}
+body{margin:0}
+a{color:inherit}
+
+/* type atoms */
+.eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3)}
+.num{font-family:var(--mono); font-variant-numeric:tabular-nums}
+h1,h2,h3{margin:0; text-wrap:balance; line-height:1.15}
+
+/* chips + pulse dot */
+.chip{display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11.5px;
+  letter-spacing:.02em; padding:6px 11px; border-radius:100px; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink-2); white-space:nowrap}
+.chip.good{color:var(--done); border-color:color-mix(in srgb,var(--done) 34%,var(--line))}
+.chip.warn{color:var(--partial); border-color:color-mix(in srgb,var(--partial) 36%,var(--line))}
+.dot{width:8px; height:8px; border-radius:50%; background:currentColor; position:relative}
+.dot.pulse::after{content:""; position:absolute; inset:0; border-radius:50%; background:currentColor; animation:pulse-ring 2.1s ease-out infinite}
+@keyframes pulse-ring{0%{transform:scale(1);opacity:.55}70%,100%{transform:scale(3.2);opacity:0}}
+
+/* semantic status dots + pills */
+.st{width:9px; height:9px; border-radius:50%; flex-shrink:0}
+.st.done{background:var(--done)} .st.open{background:var(--open)} .st.prog{background:var(--partial)} .st.attn2{background:var(--attn)}
+.stat-pill{font-family:var(--mono); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; padding:3px 7px; border-radius:100px; font-weight:600}
+.s-done{background:var(--done-bg); color:var(--done)} .s-part{background:var(--partial-bg); color:var(--partial)} .s-open{background:var(--open-bg); color:var(--open)}
+
+/* section head */
+.sec{margin:38px 0 16px; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+.sec h2{font-size:19px; font-weight:660; letter-spacing:-.01em}
+.sec .meta{font-family:var(--mono); font-size:11.5px; color:var(--ink-3)}
+
+/* filter buttons */
+.fbtn{font-family:var(--mono); font-size:12px; letter-spacing:.01em; padding:7px 13px; border-radius:100px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-2); cursor:pointer; transition:.14s}
+.fbtn:hover{border-color:var(--ink-3); color:var(--ink)}
+.fbtn[aria-pressed="true"]{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+.fbtn .c{font-variant-numeric:tabular-nums; opacity:.6; margin-left:5px}
+
+/* focus + reduced-motion */
+:where(a,button,[tabindex]):focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+@media (prefers-reduced-motion:reduce){ *{transition:none !important; animation:none !important} }
