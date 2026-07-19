@@ -31,6 +31,7 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .pipe-warn{margin-top:15px; padding-top:14px; border-top:1px solid var(--line-2); display:flex; align-items:center; gap:9px; font-family:var(--mono); font-size:11.5px; color:var(--ink-2); line-height:1.45}
 .pipe-warn b{color:var(--partial)}
 
+.warnbar{display:flex; align-items:center; gap:9px; border-radius:var(--r-sm); padding:11px 14px; margin-bottom:13px; font-size:13px; color:var(--attn); border:1px solid color-mix(in srgb,var(--attn) 30%,var(--line)); background:var(--attn-bg)}
 .verdict{display:flex; gap:16px; align-items:flex-start; border-radius:var(--r); padding:15px 18px; margin-bottom:13px}
 .verdict .vk{font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase; font-weight:700; padding-top:3px; white-space:nowrap}
 .verdict p{margin:0; font-size:14px; color:var(--ink); line-height:1.5; max-width:80ch}
@@ -124,6 +125,8 @@ footer .note{font-size:12px; color:var(--ink-3); max-width:36ch; text-align:righ
     <div class="live" id="live"></div>
   </header>
 
+  <div class="warnbar hidden" id="warnbar"></div>
+
   <section class="pipe hidden" id="pipeSec" aria-label="Pipeline">
     <div class="sweep" aria-hidden="true"></div>
     <div class="cap"><div class="eyebrow" id="pipeCap"></div><span id="pipeSub"></span></div>
@@ -168,6 +171,7 @@ const DATA = {{DATA}};
   const ilink=(n)=>U?`${U}/issues/${n}`:"#";
 
   // header
+  if(D.warning){ const w=$("#warnbar"); w.classList.remove("hidden"); w.innerHTML=`<span class="st attn2"></span>${esc(D.warning)}`; }
   $("#eyebrow").textContent = D.eyebrow || ("Status · "+(D.generated_at||"").slice(0,10));
   const nm = repo.name||"Repository";
   $("#title").innerHTML = esc(nm).replace(/(pulse|Pulse)$/,'<b>$1</b>') === esc(nm) ? esc(nm) : esc(nm.slice(0,-5))+'<b>'+esc(nm.slice(-5))+'</b>';
@@ -195,8 +199,8 @@ const DATA = {{DATA}};
   // stat tiles
   const S=D.summary||{}, tiles=D.tiles||[
     {k:"readiness",v:(S.readiness_score!=null?Math.round(S.readiness_score*100)+"%":"—"),sub:(S.blockers&&S.blockers.length?S.blockers.length+" blocker(s)":"no hard blockers"),bar:(S.readiness_score||0)*100},
-    {k:"open issues",v:S.issues_open,sub:`of ${S.issues_total} total`},
-    {k:"PRs merged",v:S.prs_merged,sub:(S.prs_open||0)+" open"},
+    {k:"open issues",v:S.issues_open,sub:(S.issues_total!=null?`of ${S.issues_total} total`:"count unavailable")},
+    {k:"PRs merged",v:S.prs_merged,sub:(S.prs_open!=null?S.prs_open+" open":"")},
     {k:"branch",v:(D.git&&D.git.ahead)||0,sub:"ahead of "+((D.git&&D.git.default_branch)||"main")},
   ];
   $("#stats").innerHTML=tiles.map(t=>`<div class="tile"><div class="k">${esc(t.k)}</div><div class="v">${t.v==null?"—":t.v}${t.small?`<small> ${t.small}</small>`:""}</div>${t.bar!=null?`<div class="bar"><i style="width:${Math.round(t.bar)}%"></i></div>`:""}${t.sub?`<div class="sub">${esc(t.sub)}</div>`:""}</div>`).join("");

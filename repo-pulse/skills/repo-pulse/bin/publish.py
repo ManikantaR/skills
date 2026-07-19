@@ -25,10 +25,12 @@ import subprocess
 import sys
 import tempfile
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "core"))
-import gather_lib as G  # noqa: E402
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # for _corepath
+from _corepath import resolve_core  # noqa: E402
 
-CORE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "core")
+CORE = resolve_core()
+sys.path.insert(0, CORE)
+import gather_lib as G  # noqa: E402
 
 
 def _cfg(repo_dir):

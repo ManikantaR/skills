@@ -9,7 +9,21 @@ echo "==> chmod +x scripts"
 chmod +x "$HERE"/claude/bin/statusline.sh "$HERE"/copilot/statusline.sh \
          "$HERE"/repo-pulse/skills/repo-pulse/bin/gather.py \
          "$HERE"/repo-pulse/skills/repo-pulse/bin/publish.py \
+         "$HERE"/repo-pulse/skills/repo-pulse/bin/assemble.py \
          "$HERE"/codebase-walkthrough/skills/codebase-walkthrough/bin/gather.py
+
+# Vendor the shared core into each skill's bin/_core so a *plain copy* of a skill
+# dir (e.g. into ~/.codex/skills) is self-contained — no dependency on the repo
+# layout. core/ stays the single source of truth; these copies are generated.
+echo "==> vendor shared core into skills"
+vendor_core () {  # $1 = skill bin dir ; $2.. = core files to copy
+  local dest="$1/_core"; shift
+  mkdir -p "$dest"
+  for f in "$@"; do cp "$HERE/core/$f" "$dest/$f"; done
+}
+vendor_core "$HERE/repo-pulse/skills/repo-pulse/bin" gather_lib.py assemble.py chassis.css render.js
+vendor_core "$HERE/codebase-walkthrough/skills/codebase-walkthrough/bin" gather_lib.py
+echo "  vendored core -> repo-pulse + codebase-walkthrough bin/_core/"
 
 echo "==> validate JSON"
 for f in "$HERE"/.claude-plugin/marketplace.json \

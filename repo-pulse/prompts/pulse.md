@@ -22,7 +22,7 @@ and its `reference/` files (data-sources, readiness, update). In short:
    repo). Numbers come from the engine; if narrative and numbers disagree, the numbers win.
 4. **Assemble** the single-file artifact:
    ```
-   python3 ~/repo/skills/core/assemble.py \
+   python3 ~/repo/skills/repo-pulse/skills/repo-pulse/bin/assemble.py \
      --template ~/repo/skills/repo-pulse/skills/repo-pulse/assets/template.html \
      --data /tmp/pulse.data.json --out docs/pulse.html --title "<Repo> — status"
    ```

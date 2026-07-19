@@ -17,7 +17,10 @@ import json
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "core"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # for _corepath
+from _corepath import resolve_core  # noqa: E402
+
+sys.path.insert(0, resolve_core())
 import gather_lib as G  # noqa: E402
 
 CRIT_LABELS = {"bug", "critical", "blocker", "regression", "security", "p0", "p1"}
@@ -80,7 +83,11 @@ def readiness(cwd, model):
 
     # 2. open criticals / bugs
     crits = [i for i in open_issues if CRIT_LABELS & {l.lower() for l in i["labels"]}]
-    if not open_issues:
+    if not model.get("gh_available"):
+        dims.append(_dim("criticals", "Open criticals / bugs", "measuring", 0.6,
+                         "Issue tracker unavailable (no gh/remote) — open-issue count is unknown, "
+                         "not zero."))
+    elif not open_issues:
         dims.append(_dim("criticals", "Open criticals / bugs", "solid", 0.9, "No open issues on file."))
     elif not crits:
         dims.append(_dim("criticals", "Open criticals / bugs", "solid", 0.85,
@@ -167,14 +174,20 @@ def build(cwd):
     model["config"] = cfg
     model["config_source"] = cfg_name
     iss = model["issues"]
+    # When GitHub data wasn't collected, report counts as unknown (null) — never 0,
+    # which reads as "no issues / all clear" and is dangerously misleading.
     model["summary"] = {
-        "issues_total": len(iss),
-        "issues_open": len([i for i in iss if i["state"] == "open"]),
-        "prs_merged": len(model["pulls"]["merged"]),
-        "prs_open": len(model["pulls"]["open"]),
+        "gh_available": gh,
+        "issues_total": len(iss) if gh else None,
+        "issues_open": len([i for i in iss if i["state"] == "open"]) if gh else None,
+        "prs_merged": len(model["pulls"]["merged"]) if gh else None,
+        "prs_open": len(model["pulls"]["open"]) if gh else None,
         "readiness_score": round(sum(d["score"] for d in model["readiness"]) / len(model["readiness"]), 2),
         "blockers": [d["dim"] for d in model["readiness"] if d["status"] == "blocker"],
     }
+    if not gh:
+        model["warning"] = ("GitHub data unavailable (no gh CLI, auth, or remote) — issues, PRs, "
+                            "and Dependabot alerts were not collected. Counts shown as unknown, not zero.")
     return model
 
 
@@ -187,9 +200,12 @@ def main():
     with open(args.out, "w") as f:
         json.dump(model, f, indent=2)
     s = model["summary"]
-    print(f"repo-pulse: {model['repo'].get('name')} · {s['issues_open']} open / {s['issues_total']} issues · "
-          f"{s['prs_merged']} PRs merged · readiness {s['readiness_score']} · "
+    unk = lambda v: "unknown" if v is None else v
+    print(f"repo-pulse: {model['repo'].get('name')} · {unk(s['issues_open'])} open / {unk(s['issues_total'])} issues · "
+          f"{unk(s['prs_merged'])} PRs merged · readiness {s['readiness_score']} · "
           f"blockers: {', '.join(s['blockers']) or 'none'}")
+    if model.get("warning"):
+        print(f"  ⚠ {model['warning']}")
     print(f"wrote {args.out}")
 
 

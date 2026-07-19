@@ -19,7 +19,10 @@ import json
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "core"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # for _corepath
+from _corepath import resolve_core  # noqa: E402
+
+sys.path.insert(0, resolve_core())
 import gather_lib as G  # noqa: E402
 
 TEST_HINTS = ("tests", "test", "__tests__", "spec")

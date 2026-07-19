@@ -49,7 +49,10 @@ Use TaskCreate to track these if the repo is non-trivial.
    ```
    python3 <skill>/bin/gather.py <repo> -o /tmp/status.json
    ```
-   It degrades gracefully with no `gh`/network. Read the printed summary + the JSON.
+   It degrades gracefully with no `gh`/network. Read the printed summary + the JSON. **If
+   `status.json` has a top-level `warning` (GitHub data unavailable), copy it verbatim into
+   `DATA.warning` and treat every issue/PR/security count as *unknown*, never zero — a repo whose
+   tracker you couldn't read is not a repo with no issues.**
 
 2. **Read the roadmap sources** the engine can't judge: `README`, `ROADMAP.md`, `SPEC.md`,
    any `docs/*plan*`, and an optional **`pulse.config.json`** (phases, display name, readiness
@@ -74,7 +77,7 @@ Use TaskCreate to track these if the repo is non-trivial.
 
 4. **Assemble.**
    ```
-   python3 <core>/assemble.py --template <skill>/assets/template.html \
+   python3 <skill>/bin/assemble.py --template <skill>/assets/template.html \
        --data /tmp/pulse.data.json --out docs/pulse.html --title "<Repo> — status" --favicon 🗂️
    ```
 
@@ -100,6 +103,7 @@ safe inline HTML (`<b>`, `<a>`). Everything else is escaped.
   "eyebrow": "Build status · YYYY-MM-DD",
   "display_name": "DocuPulse",                // optional pretty title (else repo.name)
   "tagline": "one line on what this is",
+  "warning": "carried verbatim from status.json.warning when GitHub data is unavailable",
   "live": [ {"label":"Live · API 200","kind":"good|warn|neutral"} ],
   "pipeline": { "caption","sub","note",
                 "stages":[ {"b":"Local LLM","l":"qwen2.5:7b","kind":"key|human|null"} ] },
@@ -122,7 +126,9 @@ safe inline HTML (`<b>`, `<a>`). Everything else is escaped.
 ```
 
 ## Notes
-- `<skill>` = this skill dir; `<core>` = `../../../../core` (repo root `core/`).
+- `<skill>` = this skill dir. `bin/assemble.py` and `bin/gather.py` locate the shared `core/`
+  themselves (env `REPO_PULSE_CORE` → vendored `bin/_core` → walk-up → relative), so they work
+  whether the skill is symlinked, cloned, or plain-copied into another harness.
 - The engine is the source of truth for counts; if your narrative and the numbers disagree, the
   numbers win — fix the narrative.
 - Keep the whole thing under a few seconds of LLM work: the engine did the heavy lifting.

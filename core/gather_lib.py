@@ -180,58 +180,103 @@ def dependabot_alerts(cwd):
 
 
 # --------------------------------------------------------------------------- #
+# shared skip set (build output / vcs / vendor dirs) — used by stack + debt scans
+# --------------------------------------------------------------------------- #
+_SKIP_DIRS = {".git", ".worktrees", "node_modules", ".venv", "venv", "dist", "build",
+              ".next", "__pycache__", ".pytest_cache", "vendor", "coverage"}
+
+
+# --------------------------------------------------------------------------- #
 # tech stack detection
 # --------------------------------------------------------------------------- #
-_MANIFESTS = [
-    ("requirements.txt", "Python"), ("pyproject.toml", "Python"), ("Pipfile", "Python"),
-    ("package.json", "Node/JS"), ("go.mod", "Go"), ("Cargo.toml", "Rust"),
-    ("Gemfile", "Ruby"), ("pom.xml", "Java"), ("build.gradle", "Java/Kotlin"),
-    ("composer.json", "PHP"), ("Dockerfile", "Docker"), ("docker-compose.yml", "Docker"),
-]
+# Exact-name manifests -> language. Extension- and pattern-based detection
+# (.NET project/solution files, compose files) is handled separately below so
+# a monorepo whose manifests live under src/*/ or tests/*/ is still detected.
+_MANIFEST_MAP = {
+    "requirements.txt": "Python", "pyproject.toml": "Python", "Pipfile": "Python",
+    "setup.py": "Python", "package.json": "Node/JS", "go.mod": "Go",
+    "Cargo.toml": "Rust", "Gemfile": "Ruby", "pom.xml": "Java",
+    "build.gradle": "Java/Kotlin", "composer.json": "PHP", "Dockerfile": "Docker",
+    "global.json": ".NET", "Directory.Build.props": ".NET",
+}
+_DOTNET_EXTS = {".csproj", ".fsproj", ".vbproj", ".sln", ".slnx"}
+_COMPOSE_RE = re.compile(r"^(docker|podman)-compose.*\.ya?ml$", re.I)
+# Build output / vendor dirs that carry no first-party manifests or source.
+_MANIFEST_SKIP = _SKIP_DIRS | {"obj", "bin", "TestResults", "publish"}
 
 
-def _search_dirs(cwd):
-    """Repo root + immediate child dirs (monorepos keep manifests in subdirs)."""
-    dirs = [cwd]
+def _walk_manifests(cwd, max_depth=3):
+    """Yield (dir, filenames) up to max_depth deep, pruning build/vendor dirs.
+    One level was too shallow — .NET/monorepo layouts keep manifests under
+    src/<proj>/ and tests/<proj>/ (depth 2)."""
+    for root, dirs, files in os.walk(cwd):
+        dirs[:] = [d for d in dirs if d not in _MANIFEST_SKIP and not d.startswith(".")]
+        rel = os.path.relpath(root, cwd)
+        depth = 0 if rel == "." else rel.count(os.sep) + 1
+        if depth >= max_depth:
+            dirs[:] = []
+        yield root, files
+
+
+def _scan_dotnet(path, frameworks):
+    """Pull Aspire / ASP.NET / target-framework hints out of a .csproj."""
     try:
-        for d in sorted(os.listdir(cwd)):
-            p = os.path.join(cwd, d)
-            if os.path.isdir(p) and d not in _SKIP_DIRS and not d.startswith("."):
-                dirs.append(p)
+        txt = open(path, encoding="utf-8", errors="ignore").read()
     except OSError:
-        pass
-    return dirs
+        return
+    if path.endswith(".AppHost.csproj") or re.search(r"Aspire\.Hosting", txt):
+        frameworks.add("Aspire")
+    if re.search(r'Sdk="Microsoft\.NET\.Sdk\.Web"', txt) or re.search(r"Microsoft\.AspNetCore", txt):
+        frameworks.add("ASP.NET Core")
+    if re.search(r"EntityFrameworkCore", txt):
+        frameworks.add("EF Core")
+    m = re.search(r"<TargetFrameworks?>\s*(net[\d.]+)", txt)
+    if m:
+        frameworks.add(".NET " + m.group(1)[3:])
 
 
 def tech_stack(cwd):
     langs, frameworks, files = set(), set(), []
-    for base in _search_dirs(cwd):
-        rel = os.path.relpath(base, cwd)
+    seen = set()
+    for root, fnames in _walk_manifests(cwd):
+        rel = os.path.relpath(root, cwd)
         prefix = "" if rel == "." else rel + "/"
-        for fname, lang in _MANIFESTS:
-            if os.path.exists(os.path.join(base, fname)):
-                langs.add(lang)
-                files.append(prefix + fname)
-        pj = os.path.join(base, "package.json")
-        if os.path.exists(pj):
-            try:
-                data = json.load(open(pj))
-                deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
-                for k in ("next", "react", "vue", "svelte", "express", "tailwindcss", "vite", "@angular/core"):
-                    if k in deps:
-                        frameworks.add(k.replace("@angular/core", "angular") + " " + str(deps[k]).lstrip("^~"))
-            except Exception:
-                pass
-        req = os.path.join(base, "requirements.txt")
-        if os.path.exists(req):
-            try:
-                for line in open(req):
-                    m = re.match(r"^(fastapi|django|flask|sqlalchemy|pydantic|alembic|uvicorn|torch|transformers|ollama)\b.*?([\d.]+)?",
-                                 line.strip(), re.I)
-                    if m and m.group(1):
-                        frameworks.add(m.group(1).lower() + (" " + m.group(2) if m.group(2) else ""))
-            except Exception:
-                pass
+        for f in fnames:
+            ext = os.path.splitext(f)[1].lower()
+            hit = None
+            if f in _MANIFEST_MAP:
+                hit = _MANIFEST_MAP[f]
+            elif ext in _DOTNET_EXTS:
+                hit = ".NET"
+            elif _COMPOSE_RE.match(f):
+                hit = "Docker"
+            if hit:
+                langs.add(hit)
+                if len(files) < 40:
+                    files.append(prefix + f)
+            path = os.path.join(root, f)
+            if f == "package.json" and path not in seen:
+                seen.add(path)
+                try:
+                    data = json.load(open(path))
+                    deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
+                    for k in ("next", "react", "vue", "svelte", "express", "tailwindcss", "vite", "@angular/core"):
+                        if k in deps:
+                            frameworks.add(k.replace("@angular/core", "angular") + " " + str(deps[k]).lstrip("^~"))
+                except Exception:
+                    pass
+            elif f == "requirements.txt" and path not in seen:
+                seen.add(path)
+                try:
+                    for line in open(path):
+                        m = re.match(r"^(fastapi|django|flask|sqlalchemy|pydantic|alembic|uvicorn|torch|transformers|ollama)\b.*?([\d.]+)?",
+                                     line.strip(), re.I)
+                        if m and m.group(1):
+                            frameworks.add(m.group(1).lower() + (" " + m.group(2) if m.group(2) else ""))
+                except Exception:
+                    pass
+            elif ext == ".csproj":
+                _scan_dotnet(path, frameworks)
     return {"languages": sorted(langs), "frameworks": sorted(frameworks), "manifests": files}
 
 
@@ -239,19 +284,25 @@ def tech_stack(cwd):
 # tech debt scan
 # --------------------------------------------------------------------------- #
 _DEBT_RE = re.compile(r"\b(TODO|FIXME|HACK|XXX|BUG)\b")
-_SKIP_DIRS = {".git", ".worktrees", "node_modules", ".venv", "venv", "dist", "build",
-              ".next", "__pycache__", ".pytest_cache", "vendor", "coverage"}
+# Build output + generated-code locations that shouldn't count as source or debt.
+_DEBT_SKIP_DIRS = _SKIP_DIRS | {"obj", "bin", "Migrations", "migrations"}
 _CODE_EXT = {".py", ".js", ".ts", ".tsx", ".jsx", ".go", ".rs", ".rb", ".java",
              ".cs", ".php", ".c", ".cpp", ".sh", ".css", ".html", ".sql"}
+# Generated files: real bytes, but not human-authored — don't blame them for debt.
+_GENERATED_RE = re.compile(r"\.(Designer\.cs|g\.cs|generated\.cs|g\.ts|min\.js|min\.css)$", re.I)
+
+
+def _is_generated(name):
+    return bool(_GENERATED_RE.search(name)) or name.endswith(".d.ts")
 
 
 def tech_debt(cwd, big_lines=600):
     markers, big_files, scanned, total_lines = 0, [], 0, 0
     for root, dirs, fnames in os.walk(cwd):
-        dirs[:] = [d for d in dirs if d not in _SKIP_DIRS]
+        dirs[:] = [d for d in dirs if d not in _DEBT_SKIP_DIRS]
         for f in fnames:
             ext = os.path.splitext(f)[1]
-            if ext not in _CODE_EXT:
+            if ext not in _CODE_EXT or _is_generated(f):
                 continue
             path = os.path.join(root, f)
             try:
