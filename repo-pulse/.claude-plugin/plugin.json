@@ -1,0 +1,6 @@
+{
+  "name": "repo-pulse",
+  "version": "0.1.0",
+  "description": "Generate/update an interactive, self-contained offline HTML status dashboard for any repo — live pipeline, phase/roadmap progress, a filterable issue+PR board, and an always-on readiness scorecard (tests/CI, open criticals, security, deploy freshness, tech debt, tech stack). Portable Python gather-engine + LLM judgement; visibility-aware publishing (committed file, Claude Artifact, GitHub Pages for public repos, homelab self-host). Ships the repo-pulse skill + a /pulse command.",
+  "author": { "name": "Manikanta Radhakrishna" }
+}

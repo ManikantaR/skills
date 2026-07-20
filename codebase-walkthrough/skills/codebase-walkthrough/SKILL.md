@@ -35,6 +35,19 @@ Decide the mode by checking for `docs/.walkthrough.docmap.json` first.
 
 Work in this order. Use TaskCreate to track it if the repo is non-trivial.
 
+0. **Gather the measured facts first.** Run `bin/gather.py` (shares repo-pulse's engine,
+   `core/gather_lib.py` — Python 3 stdlib, no deps):
+
+   ```
+   python3 skills/codebase-walkthrough/bin/gather.py /path/to/repo -o walkthrough.facts.json
+   ```
+
+   It emits the numbers you must **never hand-count** — `measured_stats` (LOC, source/test files,
+   languages → drop straight into `DATA.meta.stats`), `tech_stack` (languages + framework versions),
+   `git` state, and a `roadmap_skeleton` grouped by milestone (refine its titles/copy → `DATA.roadmap`).
+   Everything else in DATA is judgement you author by reading the code. **Engine owns the numbers, you
+   own the narrative.** (No `gh`/remote → repo/roadmap come back empty; stats + stack still work.)
+
 1. **Map the repo.** Detect the stack(s) and read `reference/stack-guide.md` for how to find
    entrypoints and trace flows in Python / React-TS / C# / SQL. Build a short list of:
    - the 4–6 top-level **components** (C4 "container/component" level),
@@ -67,6 +80,8 @@ only drifted flows, keep `<!-- KEEP -->` blocks verbatim, bump the date, and pri
 
 ## Files in this skill
 
+- `bin/gather.py` — deterministic facts collector (shares `core/gather_lib.py` with repo-pulse).
+  Run it first (step 0); fold `measured_stats` / `tech_stack` / `roadmap_skeleton` into `DATA`.
 - `assets/template.html` — the single-file template. Edit only its `DATA` block + `<!-- EDIT -->` prose.
 - `reference/authoring-guide.md` — field-by-field: what each `DATA` key means and how to write it well.
 - `reference/flow-tracing.md` — how to turn code into an honest call lifecycle without a hairball.

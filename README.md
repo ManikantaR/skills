@@ -11,6 +11,11 @@ Artifacts:
   code-walk, per-entrypoint call-flow lifecycles, animated runtime pipeline, roadmap, dev guide).
   Python / React-TS / C# / SQL. Global from any repo once linked — see
   `codebase-walkthrough/README.md`.
+- **repo-pulse** (`repo-pulse/`) — a model-driven skill that generates/updates an interactive,
+  offline `docs/pulse.html` status **and readiness** dashboard for any repo (live pipeline,
+  filterable issue+PR board, six-dimension readiness scorecard, honest verdict). Deterministic
+  Python gather-engine + LLM judgement; visibility-aware publishing. Shares the gather engine with
+  codebase-walkthrough (`core/`). See `repo-pulse/README.md`.
 
 ## Why this is a repo, not a loose script
 
