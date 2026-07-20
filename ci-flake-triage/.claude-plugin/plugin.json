@@ -1,0 +1,6 @@
+{
+  "name": "ci-flake-triage",
+  "version": "0.1.0",
+  "description": "Judge whether a red GitHub Actions check on a PR is a real regression or infrastructure/test-isolation flakiness safe to rerun or merge through. Reads the actual failure log, classifies against known signatures (confirmed external GitHub outage vs. random-file E2E timing flakiness vs. a deterministic same-file failure), cross-checks diff overlap with the failing area, and follows a disciplined rerun/wait/escalate protocol instead of blind reruns. Ships the ci-flake-triage skill + a /ci-triage command.",
+  "author": { "name": "Manikanta Radhakrishna" }
+}

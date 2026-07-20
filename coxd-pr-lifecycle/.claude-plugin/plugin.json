@@ -1,0 +1,6 @@
+{
+  "name": "coxd-pr-lifecycle",
+  "version": "0.1.0",
+  "description": "Run the full merge -> deploy -> verify -> close -> cleanup lifecycle for a ready PR, especially one shipped by an autonomous coding-agent worker whose PR body never auto-links the issue. Diffs the merge commit to pick the right deploy target, always verifies via the real traffic path (not a container-internal check that can lie), closes the issue when it didn't auto-link, and cleans up worktrees/branches/task-store state. Ships the coxd-pr-lifecycle skill + a /coxd-ship command.",
+  "author": { "name": "Manikanta Radhakrishna" }
+}

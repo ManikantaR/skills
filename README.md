@@ -16,6 +16,15 @@ Artifacts:
   filterable issue+PR board, six-dimension readiness scorecard, honest verdict). Deterministic
   Python gather-engine + LLM judgement; visibility-aware publishing. Shares the gather engine with
   codebase-walkthrough (`core/`). See `repo-pulse/README.md`.
+- **coxd-pr-lifecycle** (`coxd-pr-lifecycle/`) — a model-driven skill for the merge -> deploy ->
+  verify -> close -> cleanup sequence on a ready PR, especially one shipped by an autonomous
+  coding-agent worker (issue never auto-links). Picks the deploy target from the diff, verifies
+  via the real traffic path (not a container-internal check that can lie), closes the issue,
+  cleans worktrees/branches/task-store state. See `coxd-pr-lifecycle/README.md`.
+- **ci-flake-triage** (`ci-flake-triage/`) — a model-driven skill for judging whether a red CI
+  check is a real regression or infra/test-isolation flakiness safe to rerun or merge through.
+  Classifies by log signature + diff overlap; disciplined rerun/wait/escalate protocol instead of
+  blind reruns. See `ci-flake-triage/README.md`.
 
 ## Why this is a repo, not a loose script
 

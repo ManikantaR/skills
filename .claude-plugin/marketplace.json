@@ -2,7 +2,7 @@
   "name": "mani-skills",
   "owner": { "name": "Manikanta Radhakrishna" },
   "metadata": {
-    "description": "Personal cross-harness skills/tooling: the statusline, the codebase-walkthrough generator, and the repo-pulse status dashboard."
+    "description": "Personal cross-harness skills/tooling: the statusline, the codebase-walkthrough generator, the repo-pulse status dashboard, the coxd PR lifecycle, and CI flake triage."
   },
   "plugins": [
     {
@@ -19,6 +19,16 @@
       "name": "repo-pulse",
       "source": "./repo-pulse",
       "description": "Generate/update an interactive offline HTML status dashboard for any repo — live pipeline, phase/roadmap progress, a filterable issue+PR board, and an always-on readiness scorecard (tests/CI, criticals, security, deploy freshness, tech debt, stack). Portable Python gather-engine + LLM judgement; visibility-aware publishing. Ships the repo-pulse skill + /pulse command."
+    },
+    {
+      "name": "coxd-pr-lifecycle",
+      "source": "./coxd-pr-lifecycle",
+      "description": "Run the full merge -> deploy -> verify -> close -> cleanup lifecycle for a ready PR, especially one shipped by an autonomous coding-agent worker whose PR body never auto-links the issue. Diffs the merge commit to pick the right deploy target, always verifies via the real traffic path, closes the issue when it didn't auto-link, and cleans up worktrees/branches/task-store state. Ships the coxd-pr-lifecycle skill + a /coxd-ship command."
+    },
+    {
+      "name": "ci-flake-triage",
+      "source": "./ci-flake-triage",
+      "description": "Judge whether a red GitHub Actions check on a PR is a real regression or infrastructure/test-isolation flakiness safe to rerun or merge through. Classifies against known signatures, cross-checks diff overlap, and follows a disciplined rerun/wait/escalate protocol. Ships the ci-flake-triage skill + a /ci-triage command."
     }
   ]
 }
