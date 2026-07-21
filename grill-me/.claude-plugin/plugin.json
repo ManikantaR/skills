@@ -1,0 +1,6 @@
+{
+  "name": "grill-me",
+  "version": "0.1.0",
+  "description": "Interview the user relentlessly about a plan, spec, or design, one branch at a time, recommending an answer for each until scope/files/validations/risks are all explicit. Ships the grill-me skill + a /grill-me command.",
+  "author": { "name": "Manikanta Radhakrishna" }
+}

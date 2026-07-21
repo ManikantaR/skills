@@ -2,7 +2,7 @@
   "name": "mani-skills",
   "owner": { "name": "Manikanta Radhakrishna" },
   "metadata": {
-    "description": "Personal cross-harness skills/tooling: the statusline, the codebase-walkthrough generator, the repo-pulse status dashboard, the coxd PR lifecycle, CI flake triage, and NAS migration rehearsal."
+    "description": "Personal cross-harness skills/tooling: the statusline, the codebase-walkthrough generator, the repo-pulse status dashboard, the coxd PR lifecycle, CI flake triage, NAS migration rehearsal, rubber-duck review, and grill-me."
   },
   "plugins": [
     {
@@ -34,6 +34,16 @@
       "name": "nas-migration-rehearsal",
       "source": "./nas-migration-rehearsal",
       "description": "Rehearse risky infra changes (DB engine/extension swaps, structural migrations) on an on-demand staging stack before touching the real NAS deployment: Compose overrides, honest test-data choice, dump/restore into a fresh volume instead of an in-place image swap, post-restore role-password reconciliation, row-count/checksum verification, and careful cutover with a real rollback window. Ships the nas-migration-rehearsal skill + a /nas-migration-rehearsal command."
+    },
+    {
+      "name": "rubber-duck-review",
+      "source": "./rubber-duck-review",
+      "description": "Run a rubber-duck review on a plan, spec, implementation, or fix before handoff or completion: state the exact problem, the smallest solving change, the invariant that must hold, the validation that proves success, and the next likely failure mode. Promoted here after being found duplicated byte-for-byte across three repos. Ships the rubber-duck-review skill + a /rubber-duck-review command."
+    },
+    {
+      "name": "grill-me",
+      "source": "./grill-me",
+      "description": "Interview the user relentlessly about a plan, spec, or design, one branch at a time, always proposing a recommended answer and tradeoff, until scope/file areas/validations/risks are all explicit. Promoted here after the per-repo copies had already drifted. Ships the grill-me skill + a /grill-me command."
     }
   ]
 }

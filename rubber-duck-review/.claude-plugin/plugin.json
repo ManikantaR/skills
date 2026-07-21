@@ -1,0 +1,6 @@
+{
+  "name": "rubber-duck-review",
+  "version": "0.1.0",
+  "description": "Run a rubber-duck review on a plan, spec, implementation, or fix before handoff or completion: state the problem, the smallest fix, the invariant, the validation, and the next failure mode. Ships the rubber-duck-review skill + a /rubber-duck-review command.",
+  "author": { "name": "Manikanta Radhakrishna" }
+}
