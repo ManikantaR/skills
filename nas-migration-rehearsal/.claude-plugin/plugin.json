@@ -1,0 +1,5 @@
+{
+  "name": "nas-migration-rehearsal",
+  "description": "Rehearse risky infra changes (DB engine/extension swaps, structural migrations) on an on-demand staging stack before touching the real NAS deployment.",
+  "version": "1.0.0"
+}

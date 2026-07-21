@@ -2,7 +2,7 @@
   "name": "mani-skills",
   "owner": { "name": "Manikanta Radhakrishna" },
   "metadata": {
-    "description": "Personal cross-harness skills/tooling: the statusline, the codebase-walkthrough generator, the repo-pulse status dashboard, the coxd PR lifecycle, and CI flake triage."
+    "description": "Personal cross-harness skills/tooling: the statusline, the codebase-walkthrough generator, the repo-pulse status dashboard, the coxd PR lifecycle, CI flake triage, and NAS migration rehearsal."
   },
   "plugins": [
     {
@@ -29,6 +29,11 @@
       "name": "ci-flake-triage",
       "source": "./ci-flake-triage",
       "description": "Judge whether a red GitHub Actions check on a PR is a real regression or infrastructure/test-isolation flakiness safe to rerun or merge through. Classifies against known signatures, cross-checks diff overlap, and follows a disciplined rerun/wait/escalate protocol. Ships the ci-flake-triage skill + a /ci-triage command."
+    },
+    {
+      "name": "nas-migration-rehearsal",
+      "source": "./nas-migration-rehearsal",
+      "description": "Rehearse risky infra changes (DB engine/extension swaps, structural migrations) on an on-demand staging stack before touching the real NAS deployment: Compose overrides, honest test-data choice, dump/restore into a fresh volume instead of an in-place image swap, post-restore role-password reconciliation, row-count/checksum verification, and careful cutover with a real rollback window. Ships the nas-migration-rehearsal skill + a /nas-migration-rehearsal command."
     }
   ]
 }
